@@ -16,13 +16,55 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ emotion }) => {
   ]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(scrollToBottom, [messages]);
+
+  useEffect(() => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        recognitionRef.current = new SpeechRecognition();
+        recognitionRef.current.continuous = false;
+        recognitionRef.current.interimResults = false;
+        recognitionRef.current.lang = 'en-US';
+
+        recognitionRef.current.onresult = (event: any) => {
+            const transcript = event.results[0][0].transcript;
+            setInputText(prev => prev + (prev ? ' ' : '') + transcript);
+            setIsListening(false);
+        };
+
+        recognitionRef.current.onerror = (event: any) => {
+            console.error('Speech recognition error', event.error);
+            setIsListening(false);
+        };
+
+        recognitionRef.current.onend = () => {
+            setIsListening(false);
+        };
+    }
+  }, []);
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) {
+        alert("Browser does not support speech recognition.");
+        return;
+    }
+
+    if (isListening) {
+        recognitionRef.current.stop();
+        setIsListening(false);
+    } else {
+        recognitionRef.current.start();
+        setIsListening(true);
+    }
+  };
 
   const sendMessage = async () => {
     if (!inputText.trim()) return;
@@ -90,6 +132,18 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ emotion }) => {
             className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
             disabled={isLoading}
           />
+          <button
+            onClick={toggleListening}
+            disabled={isLoading}
+            className={`px-4 py-2 rounded-lg transition-colors ${
+                isListening 
+                ? 'bg-red-500 hover:bg-red-600 text-white' 
+                : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+            }`}
+            title="Voice Input"
+          >
+            {isListening ? '⏹️' : '🎤'}
+          </button>
           <button
             onClick={sendMessage}
             disabled={isLoading}
