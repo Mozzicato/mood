@@ -1,7 +1,5 @@
 {
-  "build": {
-    "env": {
-      "SKIP_ENV_VALIDATION": "true"
-    }
-  }
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/.next",
+  "framework": "nextjs"
 }
