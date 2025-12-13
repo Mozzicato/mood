@@ -1,0 +1,27 @@
+- [x] Project Setup
+    - [x] Create project directory structure (frontend/backend)
+    - [x] Initialize git repository (if not already)
+- [x] Backend Development (FastAPI)
+    - [x] Set up Python environment and install dependencies (fastapi, uvicorn, pydantic, etc.)
+    - [x] Create basic FastAPI app structure
+    - [x] Implement API endpoint for chat
+    - [x] Implement emotion selection logic
+    - [x] Implement AI integration (Mock or Real LLM)
+    - [x] Implement System Prompts for different emotions
+    - [x] Implement Crisis Detection logic (basic keyword matching)
+- [x] Frontend Development (Next.js + Tailwind CSS)
+    - [x] Initialize Next.js project
+    - [x] Install Tailwind CSS and configure
+    - [x] Create EmotionCard component
+    - [x] Create Homepage with Emotion Grid
+    - [x] Create ChatWindow component
+    - [x] Create MessageBubble component
+    - [x] Implement Chat Interface logic (state management)
+    - [x] Connect Frontend to Backend API
+- [x] Integration & Testing
+    - [x] Test flow: Emotion Selection -> Chat
+    - [x] Test different emotion modes
+    - [x] Test crisis detection response
+- [x] Documentation & Cleanup
+    - [x] Update README.md
+    - [x] Add license info
