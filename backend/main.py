@@ -2,8 +2,20 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from models import ChatRequest, ChatResponse, Message
 import os
+from dotenv import load_dotenv
+from openai import OpenAI
+
+# Load environment variables from the root directory
+load_dotenv(dotenv_path="../.env")
 
 app = FastAPI(title="TheraMood AI API")
+
+# Initialize OpenAI client for Groq
+# Note: The user provided a key starting with 'gsk_', which is a Groq API key.
+client = OpenAI(
+    base_url="https://api.groq.com/openai/v1",
+    api_key=os.getenv("GROK_API_KEY")
+)
 
 # Configure CORS
 app.add_middleware(
@@ -38,9 +50,26 @@ async def chat(request: ChatRequest):
     emotion = request.emotion
     system_prompt = SYSTEM_PROMPTS.get(emotion, SYSTEM_PROMPTS["Describe"])
     
-    # Mock response for now
-    # In a real implementation, we would call OpenAI API here
-    
-    response_text = f"[{emotion} Mode] I hear you saying: '{request.message}'. Tell me more about that."
-    
-    return ChatResponse(message=response_text)
+    try:
+        # Construct messages for OpenAI
+        messages = [{"role": "system", "content": system_prompt}]
+        
+        # Add history if available
+        for msg in request.history:
+            messages.append({"role": msg.role, "content": msg.content})
+            
+        # Add current user message
+        messages.append({"role": "user", "content": request.message})
+
+        completion = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=messages
+        )
+        
+        response_text = completion.choices[0].message.content
+        return ChatResponse(message=response_text)
+        
+    except Exception as e:
+        print(f"Error calling OpenAI: {e}")
+        # Fallback to mock response if API fails
+        return ChatResponse(message=f"[{emotion} Mode] (Offline) I hear you saying: '{request.message}'. Tell me more about that.")
