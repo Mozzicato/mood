@@ -75,10 +75,9 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ emotion }) => {
     setIsLoading(true);
 
     try {
-      // Use the full URL directly if we are in production to avoid rewrite issues
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL 
-        ? `${process.env.NEXT_PUBLIC_API_URL}/chat` 
-        : 'https://mood-app-production-bbbc.up.railway.app/chat';
+      // Normalize backend base URL to prevent double "/chat"
+      const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://mood-app-production-bbbc.up.railway.app').replace(/\/?$/, '');
+      const apiUrl = `${baseUrl}/chat`;
 
       const response = await fetch(apiUrl, {
         method: 'POST',
