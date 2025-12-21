@@ -1,4 +1,7 @@
 from fastapi.testclient import TestClient
+import sys, os
+# Ensure backend/ is on sys.path so local imports like `models` work
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import backend.main as main
 
 client = TestClient(main.app)
