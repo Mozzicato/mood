@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: mood-backend
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python main.py"
+    envVars:
+      - key: PORT
+        value: 10000
+    autoDeploy: true
+    rootDir: backend
+
+  - type: web
+    name: mood-frontend
+    env: node
+    plan: free
+    buildCommand: "npm install && npm run build"
+    startCommand: "npm start"
+    autoDeploy: true
+    rootDir: frontend
