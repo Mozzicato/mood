@@ -26,7 +26,37 @@ if _groq_key:
 else:
     client = None
 
-# Allow running locally with `python main.py`
+# Debug endpoint (non-sensitive): reports whether GROQ/OPENAI env vars exist and whether the client was constructed.
+# This endpoint does NOT return secret values, only presence and whether a quick test call succeeded (when `do_call=true`).
+from typing import Optional
+
+@app.get("/debug")
+async def debug(do_call: Optional[bool] = False):
+    info = {
+        "has_groq_env": bool(os.getenv("GROQ_API_KEY")),
+        "has_openai_env": bool(os.getenv("OPENAI_API_KEY")),
+        "client_initialized": client is not None,
+    }
+
+    if do_call:
+        if client is None:
+            info["test_call"] = "skipped: client not initialized"
+        else:
+            try:
+                # Small/cheap test: request a 1-token completion; may still consume credits
+                completion = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=[{"role": "user", "content": "hi"}],
+                    max_tokens=1,
+                )
+                info["test_call"] = "success"
+            except Exception as e:
+                info["test_call"] = f"error: {e}"
+
+    # Allow running locally with `python main.py`
+    return info
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
