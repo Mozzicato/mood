@@ -5,17 +5,35 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 
-# Load environment variables from the root directory
-load_dotenv(dotenv_path="../.env")
+# Load environment variables from the root directory (development only)
+if os.path.exists("../.env"):
+    load_dotenv(dotenv_path="../.env")
 
 app = FastAPI(title="TheraMood AI API")
 
-# Initialize OpenAI client for Groq
+# Initialize OpenAI client for Groq (expects env var GROQ_API_KEY)
 # Note: The user provided a key starting with 'gsk_', which is a Groq API key.
-client = OpenAI(
-    base_url="https://api.groq.com/openai/v1",
-    api_key=os.getenv("GROK_API_KEY")
-)
+_groq_key = os.getenv("GROQ_API_KEY") or os.getenv("OPENAI_API_KEY")
+if _groq_key:
+    try:
+        client = OpenAI(
+            base_url="https://api.groq.com/openai/v1",
+            api_key=_groq_key,
+        )
+    except Exception:
+        # If client construction fails, keep client as None and let handlers fallback
+        client = None
+else:
+    client = None
+
+# Allow running locally with `python main.py`
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 10000)),
+    )
 
 # Configure CORS
 app.add_middleware(
