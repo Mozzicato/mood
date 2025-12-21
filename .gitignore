@@ -31,3 +31,12 @@ next-env.d.ts
 
 .vercel
 .env*.local
+
+# Editor and environment
+.vscode/
+.venv/
+**/.venv/
+
+# Project-specific virtualenvs
+backend/.venv/
+
