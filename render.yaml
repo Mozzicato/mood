@@ -10,12 +10,3 @@ services:
         value: 10000
     autoDeploy: true
     rootDir: backend
-
-  - type: web
-    name: mood-frontend
-    env: node
-    plan: free
-    buildCommand: "npm install && npm run build"
-    startCommand: "npm start"
-    autoDeploy: true
-    rootDir: frontend
